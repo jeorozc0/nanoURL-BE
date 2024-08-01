@@ -3,14 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"sync"
 
 	"jeorozco.com/go/url-shortener/models"
 )
 
-var urlCache = make(map[int]models.LongURL)
-
-var cacheMutex sync.RWMutex
+type URLResponse struct {
+	ShortURL string `json:"short_url"`
+}
 
 func CreateURL(
 	w http.ResponseWriter,
@@ -24,13 +23,25 @@ func CreateURL(
 	}
 
 	if url.Url == "" {
-		http.Error(w, "url is requiered", http.StatusBadRequest)
+		http.Error(w, "url is required", http.StatusBadRequest)
 		return
 	}
 
-	cacheMutex.Lock()
-	urlCache[len(urlCache)+1] = url
-	cacheMutex.Unlock()
+	shortURL := models.New(url)
 
-	w.WriteHeader(http.StatusNoContent)
+	models.CacheMutex.Lock()
+	models.UrlCache[shortURL.ID] = shortURL
+	models.CacheMutex.Unlock()
+
+	response := URLResponse{
+		ShortURL: shortURL.NewURL,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }
