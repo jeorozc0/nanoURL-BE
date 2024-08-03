@@ -17,5 +17,5 @@ func GetURL(w http.ResponseWriter,
 		http.Error(w, "url not found", http.StatusNotFound)
 		return
 	}
-	http.Redirect(w, r, url.OriginalURL, 301)
+	http.Redirect(w, r, url.OriginalURL, http.StatusMovedPermanently)
 }
