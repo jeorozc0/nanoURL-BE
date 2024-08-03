@@ -18,7 +18,7 @@ type ShortURL struct {
 
 func New(url LongURL) ShortURL {
 	encoded := services.UUIDToShortID(uuid.New())
-	newURL := fmt.Sprintf("localhost:8080/%s", encoded)
+	newURL := fmt.Sprintf("http://localhost:8080/%s", encoded)
 	shortUrl := ShortURL{
 		ID:          encoded,
 		OriginalURL: url.Url,
