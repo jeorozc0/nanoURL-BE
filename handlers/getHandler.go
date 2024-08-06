@@ -17,5 +17,10 @@ func GetURL(w http.ResponseWriter,
 		http.Error(w, "url not found", http.StatusNotFound)
 		return
 	}
+	_, err := http.Get(url.OriginalURL)
+	if err != nil {
+		http.Error(w, "url does not exist", http.StatusNotFound)
+		return
+	}
 	http.Redirect(w, r, url.OriginalURL, http.StatusMovedPermanently)
 }
