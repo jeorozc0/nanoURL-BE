@@ -11,11 +11,11 @@ import (
 
 	"github.com/rs/cors"
 	"jeorozco.com/go/url-shortener/handlers"
+	"jeorozco.com/go/url-shortener/middleware"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlers.HandleRoot)
 
 	mux.HandleFunc("POST /url", handlers.CreateURL)
 	mux.HandleFunc("GET /{id}", handlers.GetURL)
@@ -29,7 +29,7 @@ func main() {
 	handler := c.Handler(mux)
 	server := &http.Server{
 		Addr:    ":8080",
-		Handler: handler,
+		Handler: middleware.Logging(handler),
 	}
 
 	go func() {
