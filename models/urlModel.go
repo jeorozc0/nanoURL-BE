@@ -1,12 +1,13 @@
+// models/urlModel.go
 package models
 
 import (
-	"fmt"
-	"sync"
 	"time"
 
-	"github.com/google/uuid"
+	"jeorozco.com/go/url-shortener/db"
 	"jeorozco.com/go/url-shortener/services"
+
+	"github.com/google/uuid"
 )
 
 type ShortURL struct {
@@ -16,22 +17,41 @@ type ShortURL struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-func New(url LongURL) ShortURL {
+type LongURL struct {
+	Url string `json:"url"`
+}
+
+func New(url LongURL) (ShortURL, error) {
 	encoded := services.UUIDToShortID(uuid.New())
-	newURL := fmt.Sprintf("http://localhost:5173/%s", encoded)
-	shortUrl := ShortURL{
+	baseURL := "https://your-app.fly.dev" // Update this with your fly.io domain
+	newURL := baseURL + "/" + encoded
+
+	shortURL := ShortURL{
 		ID:          encoded,
 		OriginalURL: url.Url,
 		NewURL:      newURL,
 		CreatedAt:   time.Now().UTC(),
 	}
-	return shortUrl
+
+	// Insert into database
+	_, err := db.DB.Exec(
+		`INSERT INTO urls (id, original_url, new_url, created_at) 
+		 VALUES ($1, $2, $3, $4)`,
+		shortURL.ID, shortURL.OriginalURL, shortURL.NewURL, shortURL.CreatedAt,
+	)
+	if err != nil {
+		return ShortURL{}, err
+	}
+
+	return shortURL, nil
 }
 
-type LongURL struct {
-	Url string `json:"url"`
+func GetByID(id string) (ShortURL, error) {
+	var url ShortURL
+	err := db.DB.QueryRow(
+		`SELECT id, original_url, new_url, created_at 
+		 FROM urls WHERE id = $1`,
+		id,
+	).Scan(&url.ID, &url.OriginalURL, &url.NewURL, &url.CreatedAt)
+	return url, err
 }
-
-var UrlCache = make(map[string]ShortURL)
-
-var CacheMutex sync.RWMutex
