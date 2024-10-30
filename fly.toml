@@ -12,6 +12,8 @@ primary_region = 'ord'
 
 [env]
   PORT = '8080'
+  ALLOWED_ORIGINS = "http://localhost:5173,http://localhost:3000,https://www.nanourl-dev.xyz/"
+  CORS_DEBUG = "false"
 
 [http_service]
   internal_port = 8080
