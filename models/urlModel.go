@@ -23,7 +23,7 @@ type LongURL struct {
 
 func New(url LongURL) (ShortURL, error) {
 	encoded := services.UUIDToShortID(uuid.New())
-	baseURL := "https://your-app.fly.dev" // Update this with your fly.io domain
+	baseURL := "https://www.nanourl-dev.xyz/" // Update this with your fly.io domain
 	newURL := baseURL + "/" + encoded
 
 	shortURL := ShortURL{
