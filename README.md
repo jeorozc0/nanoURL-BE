@@ -305,4 +305,4 @@ For support:
 
 ---
 
-Developed with ❤️ by [Your Name/Organization]
+Developed with ❤️ by Julio
